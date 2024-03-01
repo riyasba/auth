@@ -1,9 +1,9 @@
 import 'package:auth/widgets/date_field.dart';
-import 'package:auth/widgets/dropdoen.dart';
+
 import 'package:auth/widgets/form.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
+
 import 'package:url_launcher/url_launcher.dart';
 
 class AuthGenerationScreen extends StatefulWidget {
