@@ -44,7 +44,7 @@ User? user = FirebaseAuth.instance.currentUser;
         color: AppColors.white,
         child: Column(mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Image.asset('assets/4673526.jpg'),
+            Image.asset('assets/WhatsApp Image 2024-03-04 at 14.25.35_f06b26a5.jpg'),
          ksizedbox30,Text('Loading...',style: TextStyle(fontWeight: FontWeight.w500,fontSize: 18,color: Colors.black),)     ],
         ),
       ),

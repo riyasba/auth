@@ -8,6 +8,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginScreen extends StatefulWidget {
   LoginScreen({super.key});
@@ -39,7 +40,7 @@ class _LoginScreenState extends State<LoginScreen> {
         child: Column(mainAxisAlignment: MainAxisAlignment.center,
           children: [ksizedbox30,
             Image.asset(
-              'assets/4673526.jpg',
+              'assets/6343845.jpg',
               height: 200,
             ),
             Text(
@@ -48,12 +49,12 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
             ksizedbox30,
             Text(
-              'Please SighIn to continue and email id ',
-              style: TextStyle(fontSize: 15, fontWeight: FontWeight.w400),
+              'Login to your account with',
+              style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
             ),
             Text(
-              '& password enter logIn',
-              style: TextStyle(fontSize: 15, fontWeight: FontWeight.w400),
+              'Email and Password',
+              style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
             ),
             ksizedbox30,
             Padding(
@@ -220,9 +221,14 @@ class _LoginScreenState extends State<LoginScreen> {
               child:  CustomElevatedButton(
                         height: 40,
                         width: 1,
-                        onPressed: () {
+                        onPressed: () async{
                           if (_formKey.currentState!.validate()) {
                                 AppConstant.showLoader(context: context);
+ await saveCredentials(
+                  emailController.text,
+                  passwordController.text,
+                );
+
                             _signUp();
                             //  _signUp();
                             // controller.loginUser(
@@ -268,7 +274,24 @@ class _LoginScreenState extends State<LoginScreen> {
       );
     }
   }
+
+
+
+
+ Future<void> saveCredentials(String email, String password) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString('email', email);
+    await prefs.setString('password', password);
+  }
+
 }
+
+
+
+
+  
+
+
 
 class customtext extends StatelessWidget {
   const customtext({

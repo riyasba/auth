@@ -1,9 +1,17 @@
+import 'package:auth/widgets/app_constant.dart';
 import 'package:auth/widgets/date_field.dart';
 
 import 'package:auth/widgets/form.dart';
+import 'package:auth/widgets/screens/auth/splash.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-
+import 'package:get/get.dart';
+import 'package:get/get_navigation/src/snackbar/snackbar.dart';
+import 'package:mailer/mailer.dart';
+import 'package:mailer/smtp_server.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:io';
+import 'dart:convert';
 import 'package:url_launcher/url_launcher.dart';
 
 class AuthGenerationScreen extends StatefulWidget {
@@ -29,7 +37,83 @@ class _AuthGenerationScreenState extends State<AuthGenerationScreen> {
   int? varData;
   int? myAuthCode;
   final _formKey = GlobalKey<FormState>();
-   var dropval;
+  var dropval;
+
+
+
+
+
+  // Send Mail function
+  void sendMail(String recipientEmail,) async {
+    
+    // change your email here
+    String username = 'it.department@electromaxsa.com';
+    // change your password here
+    String password = 'puwsmrzkwpsvpjls';
+    final smtpServer = SmtpServer("smtp.bizmail.yahoo.com",
+    port: 465,
+    ssl: true,
+    username: username,
+    password: password,
+    ); 
+    final message = Message()
+      ..from = Address(username, 'Mail Service')
+      ..recipients.add(recipientEmail)
+      ..subject = 'Authorizations Code'
+      ..text = 'This is your generated authorizations code : ${autherisationcodeController.text}\n\n Sent by : ${storedEmail
+      }\n\n Thank you... ';
+   print("---------------->>>>>");
+  //  //print(dat.mail);
+  //  var dat = await send(message, smtpServer);
+  //  print(dat.mail);
+  //  print(dat.mail);
+  //  print(dat.connectionOpened);
+  //  print(dat.messageSendingEnd);
+  //  print(dat.messageSendingStart);
+    try {
+      await send(message, smtpServer);
+      print("-------on success");
+      AppConstant.showSnackbar(
+        headText: "Successful",
+        content: "Email has been sent to ${recipientEmail}",
+        position: SnackPosition.BOTTOM,
+        
+      );
+       Get.offAll(SplashScreen());
+    } catch (e) {
+      Get.rawSnackbar(
+        messageText: Text(
+          'Failed :${e}',
+          style: const TextStyle(color: Colors.white),
+        ),
+        backgroundColor: Colors.red,
+      );
+      print("-------on f");
+        
+        print(e.toString());
+     
+    }
+  }
+
+
+
+
+
+  String? storedEmail;
+
+@override
+void initState() {
+  super.initState();
+  getEmailFromStorage();
+}
+
+Future<void> getEmailFromStorage() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  setState(() {
+    storedEmail = prefs.getString('email');
+  });
+}
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -57,7 +141,7 @@ class _AuthGenerationScreenState extends State<AuthGenerationScreen> {
                   children: [
                     Text(
                       'Document Type',
-                    style: secondaryFonts.copyWith(
+                      style: secondaryFonts.copyWith(
                         color: AppColors.black,
                         fontSize: 17,
                         fontWeight: FontWeight.w400,
@@ -67,47 +151,63 @@ class _AuthGenerationScreenState extends State<AuthGenerationScreen> {
                 ),
                 SizedBox(height: 5), // You can use SizedBox for spacing
                 DropdownButtonFormField<String>(
-  value:dropval,
-  onChanged: (String? newValue) {
-   setState(() {
-  dropval = newValue!;
-  // widget.textFieldController.text = newValue;
-});
-  },
-  validator: (value) {
-    if (value!.isEmpty) {
-      return 'Please select a value'; // Return an error message if no value is selected
-    }
-    return null; // Return null if the selection is valid
-  },
-  items: <String>["FR","FA"] // Make sure there are no duplicates here
-      .map<DropdownMenuItem<String>>((String value) {
-    return DropdownMenuItem<String>(
-      value: value,
-      child: Text(value),
-    );
-  }).toList(),
-  decoration: InputDecoration(
-    contentPadding: const EdgeInsets.only(left: 10, bottom: 7, top: 4),
-    focusedErrorBorder: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(6),
-      borderSide: BorderSide(width: 1, color: Colors.red), // Border color when field is focused and has error
-    ),
-    errorBorder: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(6),
-      borderSide: BorderSide(width: 1, color: Colors.red), // Border color when field has error
-    ),
-    focusedBorder: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(6),
-      borderSide: BorderSide(width: 1, color: Colors.blue), // Border color when field is focused
-    ),
-    enabledBorder: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(6),
-      borderSide: BorderSide(width: 1, color: Colors.black.withOpacity(.50)), // Default border color
-    ),
-  ),
-),
-                 SizedBox(
+                  value: dropval,
+                  onChanged: (String? newValue) {
+                    setState(() {
+                      dropval = newValue!;
+                      // widget.textFieldController.text = newValue;
+                    });
+                  },
+                  validator: (value) {
+                    if (value!.isEmpty) {
+                      return 'Please select a value'; // Return an error message if no value is selected
+                    }
+                    return null; // Return null if the selection is valid
+                  },
+                  items: <String>[
+                    "FR",
+                    "FA"
+                  ] // Make sure there are no duplicates here
+                      .map<DropdownMenuItem<String>>((String value) {
+                    return DropdownMenuItem<String>(
+                      value: value,
+                      child: Text(value),
+                    );
+                  }).toList(),
+                  decoration: InputDecoration(
+                    contentPadding:
+                        const EdgeInsets.only(left: 10, bottom: 7, top: 4),
+                    focusedErrorBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(6),
+                      borderSide: BorderSide(
+                          width: 1,
+                          color: Colors
+                              .red), // Border color when field is focused and has error
+                    ),
+                    errorBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(6),
+                      borderSide: BorderSide(
+                          width: 1,
+                          color:
+                              Colors.red), // Border color when field has error
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(6),
+                      borderSide: BorderSide(
+                          width: 1,
+                          color: Colors
+                              .blue), // Border color when field is focused
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(6),
+                      borderSide: BorderSide(
+                          width: 1,
+                          color: Colors.black
+                              .withOpacity(.50)), // Default border color
+                    ),
+                  ),
+                ),
+                SizedBox(
                   height: 15,
                 ),
                 SizedBox(
@@ -149,7 +249,7 @@ class _AuthGenerationScreenState extends State<AuthGenerationScreen> {
                     dateEditingController: dateController,
                   ),
                 ),
-                  SizedBox(
+                SizedBox(
                   height: 15,
                 ),
                 SizedBox(
@@ -187,13 +287,15 @@ class _AuthGenerationScreenState extends State<AuthGenerationScreen> {
                   //    inputFormatters: [LengthLimitingTextInputFormatter(10)],
                   textCapitalization: TextCapitalization.characters,
                   decoration: InputDecoration(
-                    suffixIcon: autherisationcodeController.text.isEmpty 
+                    suffixIcon: autherisationcodeController.text.isEmpty
                         ? Text('')
                         : InkWell(
                             onTap: () {
-                              sendEmail(
-                                autherisationcodeController.text
-                              );
+                              
+                            _showDialog(context);
+                              // sendEmail(
+                              //   autherisationcodeController.text
+                              // );
                             },
                             child: Icon(
                               Icons.send,
@@ -282,9 +384,9 @@ class _AuthGenerationScreenState extends State<AuthGenerationScreen> {
 
                       // Set the result to a text field
                       setState(() {
-  autherisationcodeController.text = DaAuthcode.toString();
-});
-                      
+                        autherisationcodeController.text =
+                            DaAuthcode.toString();
+                      });
 
                       print(
                           '------------------------autherisationcode-----${autherisationcodeController.text}-----------------------');
@@ -319,22 +421,155 @@ class _AuthGenerationScreenState extends State<AuthGenerationScreen> {
       ),
     );
   }
+  void showSnackbar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: FittedBox(
+          child: Text(
+            message,
+            style: const TextStyle(
+              fontSize: 10,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  void _showDialog(BuildContext context) {
+    TextEditingController recipientController = TextEditingController();
+    TextEditingController messageController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Send Email'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextFormField(
+              controller: recipientController,
+              decoration: InputDecoration(
+                labelText: 'Recipient Email',
+                hintText: 'Enter recipient email',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10.0),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10.0),
+                  borderSide: BorderSide(color: Colors.blue, width: 2.0),
+                ),
+              ),
+              keyboardType: TextInputType.emailAddress,
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Please enter recipient email';
+                }
+                return null;
+              },
+            ),
+              // TextField(
+              //   controller: messageController,
+              //   decoration: InputDecoration(labelText: 'Message'),
+              // ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+Navigator.pop(context);
+ AppConstant.showLoader(context: context);
+sendMail(recipientController.text,);
+
+                // _sendMail(
+                //   recipientController.text,
+                //   messageController.text,
+                // );
+                
+          
+              },
+              child: Text('Send'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _sendMail(String recipientEmail, String mailMessage) async {
+    String username = 'it.department@electromaxsa.com';
+    String password = 'puwsmrzkwpsvpjls';
+    final smtpServer = gmail(username, password);
+    final message = Message()
+      ..from = Address(username, 'Mail Service')
+      ..recipients.add(recipientEmail)
+      ..subject = 'Mail'
+      ..text = 'Message: $mailMessage';
+
+    try {
+      await send(message, smtpServer);
+      _showSnackbar(context, 'Email sent successfully');
+    } catch (e) {
+      _showSnackbar(context, 'Failed to send email: $e');
+    }
+  }
+
+  void _showSnackbar(BuildContext context, String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+      ),
+    );
+  }
+
+
+
 }
 
+
+
+
+
+
+
+
+
 Future<void> sendEmail(String authCode) async {
-   final Uri emailLaunchUri = Uri(
+  final Uri emailLaunchUri = Uri(
     scheme: 'mailto',
     path: '',
     query: encodeQueryParameters(<String, String>{
       'subject': 'Authorizations Code',
-      'body':'Hi , This is your Authorizations Code: $authCode'
+      'body': 'Hi , This is your Authorizations Code: $authCode'
     }),
   );
   launchUrl(emailLaunchUri);
 }
+
+
+
+
 String? encodeQueryParameters(Map<String, String> params) {
   return params.entries
       .map((MapEntry<String, String> e) =>
           '${Uri.encodeComponent(e.key)}=${Uri.encodeComponent(e.value)}')
       .join('&');
 }
+
+
+
