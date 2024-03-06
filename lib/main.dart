@@ -13,9 +13,10 @@ import 'package:get/get_navigation/src/root/get_material_app.dart';
 
 
 void main()async {
+   Get.put(AuthController());
    WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
-  Get.lazyPut(()=>AuthController());
+   await Firebase.initializeApp();
+  
   runApp(const MyApp());
 }
 

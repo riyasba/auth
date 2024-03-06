@@ -1,4 +1,6 @@
+import 'package:auth/widgets/controller/auth_controller.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class MyDatePicker extends StatefulWidget {
   final TextEditingController dateEditingController;
@@ -13,7 +15,11 @@ class MyDatePicker extends StatefulWidget {
 class _MyDatePickerState extends State<MyDatePicker> {
   DateTime? _selectedDate;
 
+ 
+
   Future<void> _selectDate(BuildContext context) async {
+     Get.lazyPut(()=>AuthController());
+      final authController = Get.find<AuthController>();
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: DateTime.now(),
@@ -33,7 +39,8 @@ class _MyDatePickerState extends State<MyDatePicker> {
 // }
 
         _selectedDate = picked;
-
+authController.selectedDate = "${_selectedDate!.day}-${_selectedDate!.month}-${_selectedDate!.year}";
+authController.update();
         var result = (_selectedDate!.year * 2 / 3) * (_selectedDate!.month * 2);
         widget.dateEditingController.text = result.toInt().toString();
         //   '${_selectedDate!.day}/${_selectedDate!.month}/${_selectedDate!.year}';
@@ -43,6 +50,7 @@ class _MyDatePickerState extends State<MyDatePicker> {
 
   @override
   Widget build(BuildContext context) {
+    
     return GestureDetector(
       onTap: () => _selectDate(context),
       child: Container(height: 50,

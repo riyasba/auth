@@ -25,7 +25,7 @@ class _SplashScreenState extends State<SplashScreen> {
     await Future.delayed(
       const Duration(seconds: 2),
     );
-User? user = FirebaseAuth.instance.currentUser;
+    User? user = FirebaseAuth.instance.currentUser;
     if (user != null) {
       // User is already authenticated, navigate to the home page
        Get.offAll(AuthGenerationScreen());

@@ -1,4 +1,5 @@
 import 'package:auth/widgets/app_constant.dart';
+import 'package:auth/widgets/controller/auth_controller.dart';
 import 'package:auth/widgets/date_field.dart';
 
 import 'package:auth/widgets/form.dart';
@@ -39,37 +40,35 @@ class _AuthGenerationScreenState extends State<AuthGenerationScreen> {
   final _formKey = GlobalKey<FormState>();
   var dropval;
 
-
-
-
-
   // Send Mail function
-  void sendMail(String recipientEmail,) async {
-    
+  void sendMail(
+    String recipientEmail,
+  ) async {
     // change your email here
     String username = 'it.department@electromaxsa.com';
     // change your password here
     String password = 'puwsmrzkwpsvpjls';
-    final smtpServer = SmtpServer("smtp.bizmail.yahoo.com",
-    port: 465,
-    ssl: true,
-    username: username,
-    password: password,
-    ); 
+    final smtpServer = SmtpServer(
+      "smtp.bizmail.yahoo.com",
+      port: 465,
+      ssl: true,
+      username: username,
+      password: password,
+    );
     final message = Message()
       ..from = Address(username, 'Mail Service')
       ..recipients.add(recipientEmail)
       ..subject = 'Authorizations Code'
-      ..text = 'This is your generated authorizations code : ${autherisationcodeController.text}\n\n Sent by : ${storedEmail
-      }\n\n Thank you... ';
-   print("---------------->>>>>");
-  //  //print(dat.mail);
-  //  var dat = await send(message, smtpServer);
-  //  print(dat.mail);
-  //  print(dat.mail);
-  //  print(dat.connectionOpened);
-  //  print(dat.messageSendingEnd);
-  //  print(dat.messageSendingStart);
+      ..text =
+          'This is your generated authorizations code : ${autherisationcodeController.text}\n\n Authorized by : ${storedEmail}\n\n Reference with : ${Get.find<AuthController>().selectedDate}/${dropval}/${documentnoController.text}/${itemcodeController.text}/${qunatityController.text}/${priceController.text}';
+    print("---------------->>>>>");
+    //  //print(dat.mail);
+    //  var dat = await send(message, smtpServer);
+    //  print(dat.mail);
+    //  print(dat.mail);
+    //  print(dat.connectionOpened);
+    //  print(dat.messageSendingEnd);
+    //  print(dat.messageSendingStart);
     try {
       await send(message, smtpServer);
       print("-------on success");
@@ -77,9 +76,8 @@ class _AuthGenerationScreenState extends State<AuthGenerationScreen> {
         headText: "Successful",
         content: "Email has been sent to ${recipientEmail}",
         position: SnackPosition.BOTTOM,
-        
       );
-       Get.offAll(SplashScreen());
+      Get.offAll(SplashScreen());
     } catch (e) {
       Get.rawSnackbar(
         messageText: Text(
@@ -89,30 +87,25 @@ class _AuthGenerationScreenState extends State<AuthGenerationScreen> {
         backgroundColor: Colors.red,
       );
       print("-------on f");
-        
-        print(e.toString());
-     
+
+      print(e.toString());
     }
   }
 
-
-
-
-
   String? storedEmail;
 
-@override
-void initState() {
-  super.initState();
-  getEmailFromStorage();
-}
+  @override
+  void initState() {
+    super.initState();
+    getEmailFromStorage();
+  }
 
-Future<void> getEmailFromStorage() async {
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  setState(() {
-    storedEmail = prefs.getString('email');
-  });
-}
+  Future<void> getEmailFromStorage() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      storedEmail = prefs.getString('email');
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -246,7 +239,7 @@ Future<void> getEmailFromStorage() async {
                 Container(
                   //height: 50,
                   child: MyDatePicker(
-                    dateEditingController: dateController,
+                    dateEditingController: dateController
                   ),
                 ),
                 SizedBox(
@@ -291,8 +284,7 @@ Future<void> getEmailFromStorage() async {
                         ? Text('')
                         : InkWell(
                             onTap: () {
-                              
-                            _showDialog(context);
+                              _showDialog(context);
                               // sendEmail(
                               //   autherisationcodeController.text
                               // );
@@ -421,6 +413,7 @@ Future<void> getEmailFromStorage() async {
       ),
     );
   }
+
   void showSnackbar(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -436,20 +429,6 @@ Future<void> getEmailFromStorage() async {
     );
   }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
   void _showDialog(BuildContext context) {
     TextEditingController recipientController = TextEditingController();
     TextEditingController messageController = TextEditingController();
@@ -463,26 +442,26 @@ Future<void> getEmailFromStorage() async {
             mainAxisSize: MainAxisSize.min,
             children: [
               TextFormField(
-              controller: recipientController,
-              decoration: InputDecoration(
-                labelText: 'Recipient Email',
-                hintText: 'Enter recipient email',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10.0),
+                controller: recipientController,
+                decoration: InputDecoration(
+                  labelText: 'Recipient Email',
+                  hintText: 'Enter recipient email',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                    borderSide: BorderSide(color: Colors.blue, width: 2.0),
+                  ),
                 ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10.0),
-                  borderSide: BorderSide(color: Colors.blue, width: 2.0),
-                ),
+                keyboardType: TextInputType.emailAddress,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter recipient email';
+                  }
+                  return null;
+                },
               ),
-              keyboardType: TextInputType.emailAddress,
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please enter recipient email';
-                }
-                return null;
-              },
-            ),
               // TextField(
               //   controller: messageController,
               //   decoration: InputDecoration(labelText: 'Message'),
@@ -492,16 +471,16 @@ Future<void> getEmailFromStorage() async {
           actions: [
             TextButton(
               onPressed: () {
-Navigator.pop(context);
- AppConstant.showLoader(context: context);
-sendMail(recipientController.text,);
+                Navigator.pop(context);
+                AppConstant.showLoader(context: context);
+                sendMail(
+                  recipientController.text,
+                );
 
                 // _sendMail(
                 //   recipientController.text,
                 //   messageController.text,
                 // );
-                
-          
               },
               child: Text('Send'),
             ),
@@ -536,18 +515,7 @@ sendMail(recipientController.text,);
       ),
     );
   }
-
-
-
 }
-
-
-
-
-
-
-
-
 
 Future<void> sendEmail(String authCode) async {
   final Uri emailLaunchUri = Uri(
@@ -561,15 +529,9 @@ Future<void> sendEmail(String authCode) async {
   launchUrl(emailLaunchUri);
 }
 
-
-
-
 String? encodeQueryParameters(Map<String, String> params) {
   return params.entries
       .map((MapEntry<String, String> e) =>
           '${Uri.encodeComponent(e.key)}=${Uri.encodeComponent(e.value)}')
       .join('&');
 }
-
-
-

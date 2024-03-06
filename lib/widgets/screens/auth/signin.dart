@@ -40,8 +40,8 @@ class _LoginScreenState extends State<LoginScreen> {
         child: Column(mainAxisAlignment: MainAxisAlignment.center,
           children: [ksizedbox30,
             Image.asset(
-              'assets/6343845.jpg',
-              height: 200,
+              'assets/WhatsApp Image 2024-03-04 at 14.25.35_f06b26a5.jpg',
+              height: 250,
             ),
             Text(
               'Enter your Login Details',
@@ -225,8 +225,8 @@ class _LoginScreenState extends State<LoginScreen> {
                           if (_formKey.currentState!.validate()) {
                                 AppConstant.showLoader(context: context);
  await saveCredentials(
-                  emailController.text,
-                  passwordController.text,
+                  emailController.text.trim(),
+                  passwordController.text.trim(),
                 );
 
                             _signUp();
