@@ -1,7 +1,6 @@
 import 'package:auth/widgets/app_constant.dart';
 import 'package:auth/widgets/controller/auth_controller.dart';
 import 'package:auth/widgets/date_field.dart';
-
 import 'package:auth/widgets/form.dart';
 import 'package:auth/widgets/screens/auth/splash.dart';
 import 'package:flutter/material.dart';
@@ -11,8 +10,6 @@ import 'package:get/get_navigation/src/snackbar/snackbar.dart';
 import 'package:mailer/mailer.dart';
 import 'package:mailer/smtp_server.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'dart:io';
-import 'dart:convert';
 import 'package:url_launcher/url_launcher.dart';
 
 class AuthGenerationScreen extends StatefulWidget {
@@ -25,6 +22,7 @@ class AuthGenerationScreen extends StatefulWidget {
 class _AuthGenerationScreenState extends State<AuthGenerationScreen> {
   TextEditingController documenttypeController = TextEditingController();
   TextEditingController documentnoController = TextEditingController();
+  TextEditingController discountController = TextEditingController();
   TextEditingController itemcodeController = TextEditingController();
   TextEditingController dateController = TextEditingController();
   TextEditingController qunatityController = TextEditingController();
@@ -37,6 +35,7 @@ class _AuthGenerationScreenState extends State<AuthGenerationScreen> {
   int? varQuant;
   int? varData;
   int? myAuthCode;
+  int? varDiscco;
   final _formKey = GlobalKey<FormState>();
   var dropval;
 
@@ -60,7 +59,7 @@ class _AuthGenerationScreenState extends State<AuthGenerationScreen> {
       ..recipients.add(recipientEmail)
       ..subject = 'Authorizations Code'
       ..text =
-          'This is your generated authorizations code : ${autherisationcodeController.text}\n\n Authorized by : ${storedEmail}\n\n Reference with : ${Get.find<AuthController>().selectedDate}/${dropval}/${documentnoController.text}/${itemcodeController.text}/${qunatityController.text}/${priceController.text}';
+          'This is your generated authorizations code : ${autherisationcodeController.text}\n\n Authorized by : ${storedEmail}\n\n Reference with : ${Get.find<AuthController>().selectedDate}/${dropval}/${documentnoController.text}/${itemcodeController.text}/${qunatityController.text}/${_selectedValue == 1 ? priceController.text : discountController.text}';
     print("---------------->>>>>");
     //  //print(dat.mail);
     //  var dat = await send(message, smtpServer);
@@ -106,6 +105,8 @@ class _AuthGenerationScreenState extends State<AuthGenerationScreen> {
       storedEmail = prefs.getString('email');
     });
   }
+
+  int _selectedValue = 1;
 
   @override
   Widget build(BuildContext context) {
@@ -206,6 +207,13 @@ class _AuthGenerationScreenState extends State<AuthGenerationScreen> {
                 SizedBox(
                   height: 15,
                 ),
+
+                // SizedBox(
+                //   height: 15,
+                // ),
+                // SizedBox(
+                //   height: 15,
+                // ),
                 MyForm(
                   headingText: 'Document Number',
                   textEditingController: documentnoController,
@@ -238,9 +246,7 @@ class _AuthGenerationScreenState extends State<AuthGenerationScreen> {
                 ),
                 Container(
                   //height: 50,
-                  child: MyDatePicker(
-                    dateEditingController: dateController
-                  ),
+                  child: MyDatePicker(dateEditingController: dateController),
                 ),
                 SizedBox(
                   height: 15,
@@ -251,12 +257,81 @@ class _AuthGenerationScreenState extends State<AuthGenerationScreen> {
                 MyForm(
                     headingText: 'Qunatity',
                     textEditingController: qunatityController),
+                ksizedbox10,
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: <Widget>[
+                    Radio(
+                      value: 1,
+                      groupValue: _selectedValue,
+                      onChanged: (value) {
+                        setState(() {
+                          _selectedValue = value!;
+                        });
+                      },
+                    ),
+                    Text('Price'),
+                    Radio(
+                      value: 2,
+                      groupValue: _selectedValue,
+                      onChanged: (value) {
+                        setState(() {
+                          _selectedValue = value!;
+                        });
+                      },
+                    ),
+                    Text('Percentage'),
+                  ],
+                ),
+
                 SizedBox(
                   height: 15,
                 ),
-                MyForm(
-                    headingText: 'Price',
-                    textEditingController: priceController),
+
+                _selectedValue == 1
+                    ? MyForm(
+                        headingText: 'Price',
+                        textEditingController: priceController)
+                    : Column(
+                        children: [
+                          Row(
+                            children: [
+                              Text(
+                                'Percentage',
+                                style: secondaryFonts.copyWith(
+                                  color: AppColors.black,
+                                  fontSize: 17,
+                                  fontWeight: FontWeight.w400,
+                                ),
+                              ),
+                            ],
+                          ),SizedBox(height: 5,),
+                          TextFormField(
+                            keyboardType: TextInputType.number,
+                            controller: discountController,
+                            validator: (value) {
+                              if (value!.isEmpty) {
+                                return 'Please enter a value';
+                              }
+                              // final number = int.tryParse(value);
+                              // if (number == null || number < 0 || number > 100) {
+                              //   return 'Please enter a number between 1 and 100';
+                              // }
+                              return null;
+                            },
+                            inputFormatters: [
+                              FilteringTextInputFormatter.digitsOnly,
+                              RangeTextInputFormatter(max: 100),
+                            ],
+                            decoration: InputDecoration(
+                              contentPadding: const EdgeInsets.only(
+                                  left: 10, bottom: 7, top: 4),
+                              //  labelText: 'Enter a number between 1 and 100',
+                              border: OutlineInputBorder(),
+                            ),
+                          ),
+                        ],
+                      ),
                 SizedBox(
                   height: 15,
                 ),
@@ -346,29 +421,45 @@ class _AuthGenerationScreenState extends State<AuthGenerationScreen> {
 
                       // Convert varNumDoc, varArtigo, varPreco, varQuant to the required types
                       varNumDoc = documentnoController.text;
+                      print('----------------5-----------');
                       varArtigo = itemcodeController.text;
-                      varPreco = int.parse(priceController.text);
+                      print('----------------6-----------');
+                      print('----------------7-----------');
                       varQuant = int.parse(qunatityController.text);
+                      print('----------------8-----------');
+                      _selectedValue == 1
+                          ? varPreco = int.parse(priceController.text)
+                          : varDiscco = int.parse(discountController.text);
+                      print('----------------9-----------');
 
                       String dateString = dateController.text.toString();
                       // Assuming dateController.text contains a date in the format "YYYYMMDD"
 
-                      print('-----------------9-----------------');
+                      print('-----------------10-----------------');
                       print(
                           '-----------------${(dateController.text.toString())}-----------------');
                       print(
                           '-----------------${varArtigo.toString()}-----------------');
-                      print('-----------------${varPreco!}-----------------');
+                      //   print('-----------------${varPreco!}---------PRICE--------');
                       print('-----------------${varTipoDoc!}-----------------');
+                      //R print('-----------------${varDiscco!}-----DISCONT-----------');
                       print('-----------------${varQuant!}-----------------');
-                      print('-----------------${dateString}-----------------');
+                      print(
+                          '-----------------${dateString}----date-----${_selectedValue}--------');
+                      //  _selectedValue==1?Text('price'):    print('-----------------${varDiscco}-----discount------------');
 
                       // Logic to calculate myAuthCode
-                      myAuthCode = ((7 + 8) * 5) +
-                          varTipoDoc! * int.parse(varNumDoc.toString()) +
-                          int.parse(dateString) +
-                          int.parse(varArtigo.toString()) +
-                          varPreco! * varQuant!;
+                      _selectedValue == 1
+                          ? myAuthCode = ((7 + 8) * 5) +
+                              varTipoDoc! * int.parse(varNumDoc.toString()) +
+                              int.parse(dateString) +
+                              int.parse(varArtigo.toString()) +
+                              varPreco! * varQuant!
+                          : myAuthCode = ((7 + 8) * 5) +
+                              varTipoDoc! * int.parse(varNumDoc.toString()) +
+                              int.parse(dateString) +
+                              int.parse(varArtigo.toString()) +
+                              varDiscco! * varQuant!;
                       print('----------------5-----------');
 
                       // Assuming DaAuthcode is another variable to store the result
@@ -534,4 +625,31 @@ String? encodeQueryParameters(Map<String, String> params) {
       .map((MapEntry<String, String> e) =>
           '${Uri.encodeComponent(e.key)}=${Uri.encodeComponent(e.value)}')
       .join('&');
+}
+
+// import 'package:flutter/services.dart';
+
+class RangeTextInputFormatter extends TextInputFormatter {
+  final int? min;
+  final int? max;
+
+  RangeTextInputFormatter({this.min, this.max});
+
+  @override
+  TextEditingValue formatEditUpdate(
+      TextEditingValue oldValue, TextEditingValue newValue) {
+    if (newValue.text.isEmpty) {
+      // Allow empty input
+      return newValue;
+    }
+
+    final number = int.tryParse(newValue.text);
+    if (number == null ||
+        (min != null && number < min!) ||
+        (max != null && number > max!)) {
+      // Return the old value if the new value is not within the specified range
+      return oldValue;
+    }
+    return newValue;
+  }
 }
