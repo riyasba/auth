@@ -31,10 +31,10 @@ class _AuthGenerationScreenState extends State<AuthGenerationScreen> {
   int? varTipoDoc;
   String? varNumDoc;
   String? varArtigo;
-  int? varPreco;
+  double? varPreco;
   int? varQuant;
   int? varData;
-  int? myAuthCode;
+  var myAuthCode;
   int? varDiscco;
   final _formKey = GlobalKey<FormState>();
   var dropval;
@@ -410,13 +410,25 @@ class _AuthGenerationScreenState extends State<AuthGenerationScreen> {
                           '---------------------------price${priceController.text}-----------------------');
                       String txtdoctype = dropval;
                       if (txtdoctype.toUpperCase() == "FR") {
-                        print('----------------1-----------');
+                       
+                        if( _selectedValue == 1){
+print("---------------------on price calc");
                         varTipoDoc = 349869;
-                        print('----------------2-----------');
+                        }else{
+print("---------------------on disc calc");
+                        varTipoDoc = 569842;
+                        }
+                        
                       } else if (txtdoctype.toUpperCase() == "FA") {
-                        print('----------------3-----------');
-                        varTipoDoc = 985217;
-                        print('----------------4-----------');
+                        
+                           if( _selectedValue == 1){
+print("---------------------on price calc");
+                          varTipoDoc = 985217;
+                           }else{
+print("---------------------on disc calc");
+                            varTipoDoc = 569249;
+                           }
+                        
                       }
 
                       // Convert varNumDoc, varArtigo, varPreco, varQuant to the required types
@@ -428,7 +440,7 @@ class _AuthGenerationScreenState extends State<AuthGenerationScreen> {
                       varQuant = int.parse(qunatityController.text);
                       print('----------------8-----------');
                       _selectedValue == 1
-                          ? varPreco = int.parse(priceController.text)
+                          ? varPreco = double.parse(priceController.text)
                           : varDiscco = int.parse(discountController.text);
                       print('----------------9-----------');
 
@@ -455,7 +467,7 @@ class _AuthGenerationScreenState extends State<AuthGenerationScreen> {
                               int.parse(dateString) +
                               int.parse(varArtigo.toString()) +
                               varPreco! * varQuant!
-                          : myAuthCode = ((7 + 8) * 5) +
+                          : myAuthCode = ((9 + 7) * 8) +
                               varTipoDoc! * int.parse(varNumDoc.toString()) +
                               int.parse(dateString) +
                               int.parse(varArtigo.toString()) +
@@ -463,7 +475,7 @@ class _AuthGenerationScreenState extends State<AuthGenerationScreen> {
                       print('----------------5-----------');
 
                       // Assuming DaAuthcode is another variable to store the result
-                      int? DaAuthcode = myAuthCode;
+                      int? DaAuthcode = myAuthCode.toInt();
 
                       // Set the result to a text field
                       setState(() {
